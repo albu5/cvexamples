@@ -1,0 +1,915 @@
+
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html><head>
+      <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+   <!--
+This HTML was auto-generated from MATLAB code.
+To make changes, update the MATLAB code and republish this document.
+      --><title>debugScript</title><meta name="generator" content="MATLAB 8.6"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2017-02-24"><meta name="DC.source" content="debugScript.m"><style type="text/css">
+html,body,div,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abbr,acronym,address,big,cite,code,del,dfn,em,font,img,ins,kbd,q,s,samp,small,strike,strong,sub,sup,tt,var,b,u,i,center,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td{margin:0;padding:0;border:0;outline:0;font-size:100%;vertical-align:baseline;background:transparent}body{line-height:1}ol,ul{list-style:none}blockquote,q{quotes:none}blockquote:before,blockquote:after,q:before,q:after{content:'';content:none}:focus{outine:0}ins{text-decoration:none}del{text-decoration:line-through}table{border-collapse:collapse;border-spacing:0}
+
+html { min-height:100%; margin-bottom:1px; }
+html body { height:100%; margin:0px; font-family:Arial, Helvetica, sans-serif; font-size:10px; color:#000; line-height:140%; background:#fff none; overflow-y:scroll; }
+html body td { vertical-align:top; text-align:left; }
+
+h1 { padding:0px; margin:0px 0px 25px; font-family:Arial, Helvetica, sans-serif; font-size:1.5em; color:#d55000; line-height:100%; font-weight:normal; }
+h2 { padding:0px; margin:0px 0px 8px; font-family:Arial, Helvetica, sans-serif; font-size:1.2em; color:#000; font-weight:bold; line-height:140%; border-bottom:1px solid #d6d4d4; display:block; }
+h3 { padding:0px; margin:0px 0px 5px; font-family:Arial, Helvetica, sans-serif; font-size:1.1em; color:#000; font-weight:bold; line-height:140%; }
+
+a { color:#005fce; text-decoration:none; }
+a:hover { color:#005fce; text-decoration:underline; }
+a:visited { color:#004aa0; text-decoration:none; }
+
+p { padding:0px; margin:0px 0px 20px; }
+img { padding:0px; margin:0px 0px 20px; border:none; }
+p img, pre img, tt img, li img, h1 img, h2 img { margin-bottom:0px; } 
+
+ul { padding:0px; margin:0px 0px 20px 23px; list-style:square; }
+ul li { padding:0px; margin:0px 0px 7px 0px; }
+ul li ul { padding:5px 0px 0px; margin:0px 0px 7px 23px; }
+ul li ol li { list-style:decimal; }
+ol { padding:0px; margin:0px 0px 20px 0px; list-style:decimal; }
+ol li { padding:0px; margin:0px 0px 7px 23px; list-style-type:decimal; }
+ol li ol { padding:5px 0px 0px; margin:0px 0px 7px 0px; }
+ol li ol li { list-style-type:lower-alpha; }
+ol li ul { padding-top:7px; }
+ol li ul li { list-style:square; }
+
+.content { font-size:1.2em; line-height:140%; padding: 20px; }
+
+pre, code { font-size:12px; }
+tt { font-size: 1.2em; }
+pre { margin:0px 0px 20px; }
+pre.codeinput { padding:10px; border:1px solid #d3d3d3; background:#f7f7f7; }
+pre.codeoutput { padding:10px 11px; margin:0px 0px 20px; color:#4c4c4c; }
+pre.error { color:red; }
+
+@media print { pre.codeinput, pre.codeoutput { word-wrap:break-word; width:100%; } }
+
+span.keyword { color:#0000FF }
+span.comment { color:#228B22 }
+span.string { color:#A020F0 }
+span.untermstring { color:#B20000 }
+span.syscmd { color:#B28C00 }
+
+.footer { width:auto; padding:10px 0px; margin:25px 0px 0px; border-top:1px dotted #878787; font-size:0.8em; line-height:140%; font-style:italic; color:#878787; text-align:left; float:none; }
+.footer p { margin:0px; }
+.footer a { color:#878787; }
+.footer a:hover { color:#878787; text-decoration:underline; }
+.footer a:visited { color:#878787; }
+
+table th { padding:7px 5px; text-align:left; vertical-align:middle; border: 1px solid #d6d4d4; font-weight:bold; }
+table td { padding:7px 5px; text-align:left; vertical-align:top; border:1px solid #d6d4d4; }
+
+
+
+
+
+  </style></head><body><div class="content"><h2>Contents</h2><div><ul><li><a href="#1">Lowe&#8217;s scale-invariant interest point detection</a></li><li><a href="#5">Feature extraction</a></li><li><a href="#19">Appendix</a></li><li><a href="#20">function H2to1 = computeH(p1,p2)</a></li><li><a href="#21">function H = computeHessian(I)</a></li><li><a href="#22">function PrincipalCurvature = computePrincipalCurvature(DoGPyramid)</a></li><li><a href="#23">function [DoGPyramid, DoGLevels] = createDoGPyramid(GaussianPyramid, levels)</a></li><li><a href="#24">function [GaussianPyramid] = createGaussianPyramid(im, sigma0, k, levels)</a></li><li><a href="#25">function displayPyramid(pyrmid)</a></li><li><a href="#26">function [locsDoG, GaussianPyramid] = DoGdetector(im, sigma0, k, levels, th_contrast, th_r)</a></li><li><a href="#27">function locsDoG = getLocalExtrema(DoGPyramid, DoGLevels, PrincipalCurvature, th_contrast, th_r)</a></li><li><a href="#28">function [matches] = matchInterestPoints(desc1, desc2, ratio)</a></li><li><a href="#29">function h = plotInterestPoints(im, locs, po)</a></li><li><a href="#30">function index = randIndex(maxIndex,len)</a></li><li><a href="#31">function [f] = ransac( x,y,ransacCoef,funcFindF,funcDist )</a></li><li><a href="#32">function bestH = ransacH(matches, locs1, locs2, nIter, tol)</a></li></ul></div><h2>Lowe&#8217;s scale-invariant interest point detection<a name="1"></a></h2><pre class="codeinput">im = imread(<span class="string">'building_1.jpg'</span>);
+im = im2double((im));
+</pre><p>Parameters for Difference of Gaussians</p><pre class="codeinput">scales = [-1, 0, 1, 2, 3, 4];
+K = sqrt(2);
+sigma0 = 1;
+th_c = 0.03;
+th_r = 12;
+</pre><p>Get the interest points and the Gaussian Pyramid used to compute it</p><pre class="codeinput">[locs,GP] = DoGdetector(rgb2gray(im), sigma0, K, scales, th_c, th_r);
+plotInterestPoints(im,locs)
+drawnow()
+</pre><pre class="codeoutput">
+ans = 
+
+  Image with properties:
+
+           CData: [751x1024x3 double]
+    CDataMapping: 'direct'
+
+  Use GET to show all properties
+
+</pre><img vspace="5" hspace="5" src="debugScript_01.png" alt=""> <p>Please look at the appendix for the code of individual functions</p><h2>Feature extraction<a name="5"></a></h2><p>Computed SIFT using vlfeat library</p><pre class="codeinput"><span class="comment">% addpath('/path/to/vlfeat')</span>
+im1 = imread(<span class="string">'reference.png'</span>);
+im2 = imread(<span class="string">'test.png'</span>);
+[locs1, desc1] = vl_sift(single(rgb2gray(im1)));
+[locs2, desc2] = vl_sift(single(rgb2gray(im2)));
+locs1 = locs1';
+desc1 = desc1';
+locs2 = locs2';
+desc2 = desc2';
+</pre><p>reference.png computed interest points</p><pre class="codeinput">plotInterestPoints(im1, locs1);
+drawnow()
+</pre><img vspace="5" hspace="5" src="debugScript_02.png" alt=""> <p>test.png computed interest points</p><pre class="codeinput">figure
+plotInterestPoints(im2, locs2);
+drawnow()
+</pre><img vspace="5" hspace="5" src="debugScript_03.png" alt=""> <p>Compute matches. See appendix for function code</p><pre class="codeinput">matches = matchInterestPoints(desc1, desc2);
+</pre><p>reference.png matched interest points</p><pre class="codeinput">figure
+plotInterestPoints(im1, locs1(matches(:,1),:), 1);
+drawnow()
+</pre><img vspace="5" hspace="5" src="debugScript_04.png" alt=""> <p>test.png matched interest points</p><pre class="codeinput">figure
+plotInterestPoints(im2, locs2(matches(:,2),:), 1);
+drawnow()
+</pre><img vspace="5" hspace="5" src="debugScript_05.png" alt=""> <p>note that colors of matched points in both images might be different and they do not indicate any correspondence</p><p>Get best 3 matches (also included best 8 matches)</p><pre class="codeinput">[B,I] = sort(matches(:,3)); <span class="comment">%% sort by distances</span>
+top3 = matches(I(1:3),:);
+top8 = matches(I(1:8),:);
+</pre><p>Compute Affine transformation using top3, top8 matches as well as RANSAC</p><pre class="codeinput">H3 = computeH(locs1(top3(:,1),1:2)', locs2(top3(:,2),1:2)');
+H8 = computeH(locs1(top8(:,1),1:2)', locs2(top8(:,2),1:2)');
+H = ransacH(matches, locs1, locs2);
+</pre><p>See appendix for function codes</p><p>Compute transformed corners</p><pre class="codeinput">corners = [1,1,1;<span class="keyword">...</span>
+           1,size(im1,1),1;<span class="keyword">...</span>
+           size(im1,2),size(im1,1),1;<span class="keyword">...</span><span class="comment">1</span>
+           size(im1,2),1,1;];
+corners3 = (H3*corners')';
+corners8 = (H8*corners')';
+cornersR = (H*corners')';
+</pre><p>Visualize transormation using top3 matches</p><pre class="codeinput">figure
+x = corners3(:,1);
+y = corners3(:,2);
+imshow(im2), hold <span class="string">on</span>, fill(x,y,<span class="string">'r'</span>,<span class="string">'FaceAlpha'</span>,0.3), hold <span class="string">off</span>
+drawnow()
+</pre><img vspace="5" hspace="5" src="debugScript_06.png" alt=""> <p>Visualize transormation using top8 matches</p><pre class="codeinput">figure
+x = corners8(:,1);
+y = corners8(:,2);
+imshow(im2), hold <span class="string">on</span>, fill(x,y,<span class="string">'r'</span>,<span class="string">'FaceAlpha'</span>,0.3), hold <span class="string">off</span>
+drawnow()
+</pre><img vspace="5" hspace="5" src="debugScript_07.png" alt=""> <p>Visualize transormation using RANSAC</p><pre class="codeinput">figure
+x = cornersR(:,1);
+y = cornersR(:,2);
+imshow(im2), hold <span class="string">on</span>, fill(x,y,<span class="string">'r'</span>,<span class="string">'FaceAlpha'</span>,0.3), hold <span class="string">off</span>
+drawnow()
+</pre><img vspace="5" hspace="5" src="debugScript_08.png" alt=""> <h2>Appendix<a name="19"></a></h2><p>All function definitions are here</p><h2>function H2to1 = computeH(p1,p2)<a name="20"></a></h2><pre class="codeinput"><span class="comment">% function H2to1 = computeH(p1,p2)</span>
+<span class="comment">% INPUTS:</span>
+<span class="comment">% p1 and p2 - Each are size (2 x N) matrices of corresponding (x, y)'</span>
+<span class="comment">%             coordinates between two images</span>
+<span class="comment">%</span>
+<span class="comment">% OUTPUTS:</span>
+<span class="comment">% H2to1 - a 3 x 3 matrix encoding the homography that best matches the linear</span>
+<span class="comment">%         equation</span>
+<span class="comment">% p1 = p1';</span>
+<span class="comment">% p2 = p2';</span>
+<span class="comment">% A = [];</span>
+<span class="comment">% for i = 1:size(p1,1)</span>
+<span class="comment">%     x1 = p1(i,1);</span>
+<span class="comment">%     x2 = p2(i,1);</span>
+<span class="comment">%     y1 = p1(i,2);</span>
+<span class="comment">%     y2 = p2(i,2);</span>
+<span class="comment">%</span>
+<span class="comment">%     A = vertcat(A,[-x1, -y1, -1, 0, 0, 0, x2*x1, x2*y1, x2]);</span>
+<span class="comment">%     A = vertcat(A,[0, 0, 0, -x1, -y1, -1, y2*x1, y2*y1, y2]);</span>
+<span class="comment">% end</span>
+<span class="comment">% [V,~] = eig(A'*A);</span>
+<span class="comment">% h = V(:,1);</span>
+<span class="comment">% h = h/(h(end));</span>
+<span class="comment">% H2to1 = reshape(h,[3,3])';</span>
+</pre><h2>function H = computeHessian(I)<a name="21"></a></h2><pre class="codeinput"><span class="comment">% function H = computeHessian(I)</span>
+<span class="comment">% [ix,iy] = gradient(I);</span>
+<span class="comment">% [H.ixx, H.ixy] = gradient(ix);</span>
+<span class="comment">% [H.iyx, H.iyy] = gradient(iy);</span>
+<span class="comment">% end</span>
+</pre><h2>function PrincipalCurvature = computePrincipalCurvature(DoGPyramid)<a name="22"></a></h2><pre class="codeinput"><span class="comment">% function PrincipalCurvature = computePrincipalCurvature(DoGPyramid)</span>
+<span class="comment">%%Edge Suppression</span>
+<span class="comment">% Takes in DoGPyramid generated in createDoGPyramid and returns</span>
+<span class="comment">% PrincipalCurvature,a matrix of the same size where each point contains the</span>
+<span class="comment">% curvature ratio R for the corre-sponding point in the DoG pyramid</span>
+<span class="comment">%</span>
+<span class="comment">% INPUTS</span>
+<span class="comment">% DoG Pyramid - size (size(im), numel(levels) - 1) matrix of the DoG pyramid</span>
+<span class="comment">%</span>
+<span class="comment">% OUTPUTS</span>
+<span class="comment">% PrincipalCurvature - size (size(im), numel(levels) - 1) matrix where each</span>
+<span class="comment">%                      point contains the curvature ratio R for the</span>
+<span class="comment">%                      corresponding point in the DoG pyramid</span>
+<span class="comment">% PrincipalCurvature = zeros(size(DoGPyramid));</span>
+<span class="comment">% for i = 1:size(DoGPyramid,3)</span>
+<span class="comment">%     I = DoGPyramid(:,:,i);</span>
+<span class="comment">%     H = computeHessian(I);</span>
+<span class="comment">%     R = (tracefun(H).^2) ./ (detfun(H));</span>
+<span class="comment">%     PrincipalCurvature(:,:,i) = R;</span>
+<span class="comment">% end</span>
+<span class="comment">% end</span>
+<span class="comment">%</span>
+<span class="comment">% function T = tracefun(H)</span>
+<span class="comment">% T = H.ixx + H.iyy;</span>
+<span class="comment">% end</span>
+<span class="comment">%</span>
+<span class="comment">% function D = detfun(H)</span>
+<span class="comment">% D = ((H.ixx) .* (H.iyy)) - ((H.ixy) .* (H.iyx));</span>
+<span class="comment">% end</span>
+</pre><h2>function [DoGPyramid, DoGLevels] = createDoGPyramid(GaussianPyramid, levels)<a name="23"></a></h2><pre class="codeinput"><span class="comment">% function [DoGPyramid, DoGLevels] = createDoGPyramid(GaussianPyramid, levels)</span>
+<span class="comment">% Produces DoG Pyramid</span>
+<span class="comment">% inputs</span>
+<span class="comment">% Gaussian Pyramid - A matrix of grayscale images of size</span>
+<span class="comment">%                    (size(im), numel(levels))</span>
+<span class="comment">% levels      - the levels of the pyramid where the blur at each level is</span>
+<span class="comment">%               outputs</span>
+<span class="comment">% DoG Pyramid - size (size(im), numel(levels) - 1) matrix of the DoG pyramid</span>
+<span class="comment">%               created by differencing the Gaussian Pyramid input</span>
+<span class="comment">% L = numel(levels)-1;</span>
+<span class="comment">% DoGPyramid = GaussianPyramid(:,:,1:end-1);</span>
+<span class="comment">% for i = 1:L</span>
+<span class="comment">%    DoGPyramid(:,:,i) = GaussianPyramid(:,:,i+1)-GaussianPyramid(:,:,i);</span>
+<span class="comment">% end</span>
+<span class="comment">% DoGLevels = levels(2:end);</span>
+<span class="comment">%</span>
+<span class="comment">% end</span>
+</pre><h2>function [GaussianPyramid] = createGaussianPyramid(im, sigma0, k, levels)<a name="24"></a></h2><pre class="codeinput"><span class="comment">% function [GaussianPyramid] = createGaussianPyramid(im, sigma0, k, levels)</span>
+<span class="comment">% Produces Gaussian Pyramid</span>
+<span class="comment">% inputs</span>
+<span class="comment">% im - a grayscale image with range 0 to 1</span>
+<span class="comment">% sigma0 - the standard deviation of the blur at level 0</span>
+<span class="comment">% k - the multiplicative factor of sigma at each level, where sigma=sigma_0 k^l</span>
+<span class="comment">% levels - the levels of the pyramid where the blur at each level is</span>
+<span class="comment">% sigma=sigma0 k^l</span>
+<span class="comment">% outputs</span>
+<span class="comment">% A matrix of grayscale images of size (size(im),numel(levels))</span>
+
+<span class="comment">% im = im2double(im);</span>
+<span class="comment">% if size(im,3)==3</span>
+<span class="comment">%     im= rgb2gray(im);</span>
+<span class="comment">% end</span>
+<span class="comment">%</span>
+<span class="comment">% GaussianPyramid = zeros([size(im),length(levels)]);</span>
+<span class="comment">% for i = 1:length(levels)</span>
+<span class="comment">%     sigma_ = sigma0*k^levels(i);</span>
+<span class="comment">%     h = fspecial('gaussian',floor(3*sigma_*2)+1,sigma_);</span>
+<span class="comment">%     GaussianPyramid(:,:,i) = imfilter(im,h);</span>
+<span class="comment">% end</span>
+</pre><h2>function displayPyramid(pyrmid)<a name="25"></a></h2><pre class="codeinput"><span class="comment">% function displayPyramid(pyrmid)</span>
+<span class="comment">% inputs: pyrmid - R x C x L; R x C is the size of the input image; L is the number of levels in the pyramid.</span>
+
+<span class="comment">% [nr, nc, nl]= size(pyrmid);</span>
+<span class="comment">% im2show= zeros(nr, nc*nl);</span>
+<span class="comment">%</span>
+<span class="comment">% for il=1:nl</span>
+<span class="comment">%     im2show(1:end,1+(il-1)*nc  :  il*nc) = pyrmid(:,:,il);</span>
+<span class="comment">% end</span>
+<span class="comment">%</span>
+<span class="comment">% imshow(im2show,[]);</span>
+<span class="comment">% title('Pyramid of image')</span>
+<span class="comment">% end</span>
+</pre><h2>function [locsDoG, GaussianPyramid] = DoGdetector(im, sigma0, k, levels, th_contrast, th_r)<a name="26"></a></h2><pre class="codeinput"><span class="comment">% function [locsDoG, GaussianPyramid] = DoGdetector(im, sigma0, k, ...</span>
+<span class="comment">%                                                 levels, th_contrast, th_r)</span>
+<span class="comment">% DoGdetector</span>
+<span class="comment">%  Putting it all together</span>
+<span class="comment">%</span>
+<span class="comment">%   Inputs          Description</span>
+<span class="comment">% --------------------------------------------------------------------------</span>
+<span class="comment">%   im              Grayscale image with range [0,1].</span>
+<span class="comment">%</span>
+<span class="comment">%   sigma0          Scale of the 0th image pyramid.</span>
+<span class="comment">%</span>
+<span class="comment">%   k               Pyramid Factor.  Suggest sqrt(2).</span>
+<span class="comment">%</span>
+<span class="comment">%   levels          Levels of pyramid to construct. Suggest -1:4.</span>
+<span class="comment">%</span>
+<span class="comment">%   th_contrast     DoG contrast threshold.  Suggest 0.03.</span>
+<span class="comment">%</span>
+<span class="comment">%   th_r            Principal Ratio threshold.  Suggest 12.</span>
+<span class="comment">%</span>
+<span class="comment">%   Outputs         Description</span>
+<span class="comment">% --------------------------------------------------------------------------</span>
+<span class="comment">%</span>
+<span class="comment">%   locsDoG         N x 3 matrix where the DoG pyramid achieves a local extrema</span>
+<span class="comment">%                   in both scale and space, and satisfies the two thresholds.</span>
+<span class="comment">%</span>
+<span class="comment">%   GaussianPyramid A matrix of grayscale images of size (size(im),numel(levels))</span>
+<span class="comment">% GaussianPyramid = (createGaussianPyramid(im,...</span>
+<span class="comment">%     sigma0,k, levels));</span>
+<span class="comment">%</span>
+<span class="comment">% [mypyrdog,L] = createDoGPyramid(GaussianPyramid, levels);</span>
+<span class="comment">%</span>
+<span class="comment">% pc = computePrincipalCurvature(mypyrdog);</span>
+<span class="comment">%</span>
+<span class="comment">% locsDoG = getLocalExtrema(mypyrdog, L, pc, th_contrast, th_r);</span>
+<span class="comment">%</span>
+<span class="comment">% end</span>
+</pre><h2>function locsDoG = getLocalExtrema(DoGPyramid, DoGLevels, PrincipalCurvature, th_contrast, th_r)<a name="27"></a></h2><pre class="codeinput"><span class="comment">% Detecting Extrema</span>
+<span class="comment">% INPUTS</span>
+<span class="comment">% DoG Pyramid - size (size(im), numel(levels) - 1) matrix of the DoG pyramid</span>
+<span class="comment">% DoG Levels  - The levels of the pyramid where the blur at each level is</span>
+<span class="comment">%               outputs</span>
+<span class="comment">% PrincipalCurvature - size (size(im), numel(levels) - 1) matrix contains the</span>
+<span class="comment">%                      curvature ratio R</span>
+<span class="comment">% th_contrast - remove any point that is a local extremum but does not have a</span>
+<span class="comment">%               DoG response magnitude above this threshold</span>
+<span class="comment">% th_r        - remove any edge-like points that have too large a principal</span>
+<span class="comment">%               curvature ratio</span>
+<span class="comment">%</span>
+<span class="comment">% OUTPUTS</span>
+<span class="comment">% locsDoG - N x 3 matrix where the DoG pyramid achieves a local extrema in both</span>
+<span class="comment">%           scale and space, and also satisfies the two thresholds.</span>
+<span class="comment">% N = circshift(DoGPyramid,[-1, 0, 0]);</span>
+<span class="comment">% NE = circshift(DoGPyramid,[-1, 1, 0]);</span>
+<span class="comment">% E = circshift(DoGPyramid,[0, 1, 0]);</span>
+<span class="comment">% SE = circshift(DoGPyramid,[1, 1, 0]);</span>
+<span class="comment">% S = circshift(DoGPyramid,[1, 0, 0]);</span>
+<span class="comment">% SW = circshift(DoGPyramid,[1, -1, 0]);</span>
+<span class="comment">% W = circshift(DoGPyramid,[0, -1, 0]);</span>
+<span class="comment">% NW = circshift(DoGPyramid,[-1, -1, 0]);</span>
+<span class="comment">% Coarse = circshift(DoGPyramid,[0,0,1]);</span>
+<span class="comment">% Fine = circshift(DoGPyramid,[0,0,-1]);</span>
+<span class="comment">%</span>
+<span class="comment">% locs = (DoGPyramid&gt;=N)&amp;(DoGPyramid&gt;=NE)&amp;(DoGPyramid&gt;=E)&amp;...</span>
+<span class="comment">%     (DoGPyramid&gt;=SE)&amp;(DoGPyramid&gt;=S)&amp;(DoGPyramid&gt;=SW)&amp;...</span>
+<span class="comment">%     (DoGPyramid&gt;=W)&amp;(DoGPyramid&gt;=NW)&amp;...</span>
+<span class="comment">%     (DoGPyramid&gt;=Coarse)&amp;(DoGPyramid&gt;=Fine);</span>
+<span class="comment">% locs(:,:,1) = 0;</span>
+<span class="comment">% locs(:,:,end) = 0;</span>
+<span class="comment">% Xl = [];</span>
+<span class="comment">% Yl = [];</span>
+<span class="comment">% Dl = [];</span>
+<span class="comment">% for i = 1:size(DoGPyramid,3)-2</span>
+<span class="comment">%     iloc = locs(:,:,i+1);</span>
+<span class="comment">%     D = DoGPyramid(:,:,i+1);</span>
+<span class="comment">%     R = PrincipalCurvature(:,:,i+1);</span>
+<span class="comment">%     iloc = iloc &amp; (D&gt;th_contrast);</span>
+<span class="comment">%     iloc = iloc &amp; (R&lt;th_r);</span>
+<span class="comment">%     [Yt,Xt] = find(iloc);</span>
+<span class="comment">%     Xl = vertcat(Xl,Xt);</span>
+<span class="comment">%     Yl = vertcat(Yl,Yt);</span>
+<span class="comment">%     Dl = vertcat(Dl,DoGLevels(i+1)*ones(size(Xt)));</span>
+<span class="comment">% end</span>
+<span class="comment">% locsDoG = horzcat(Xl,Yl,Dl);</span>
+</pre><h2>function [matches] = matchInterestPoints(desc1, desc2, ratio)<a name="28"></a></h2><pre class="codeinput"><span class="comment">% function [matches] = briefMatch(desc1, desc2, ratio)</span>
+<span class="comment">% Performs the descriptor matching</span>
+<span class="comment">% inputs  : desc1 , desc2 - m1 x n and m2 x n matrix. m1 and m2 are the number of keypoints in image 1 and 2.</span>
+<span class="comment">%						    n is the number of bits in the brief</span>
+<span class="comment">% outputs : matches - p x 2 matrix. where the first column are indices</span>
+<span class="comment">%									into desc1 and the second column are indices into desc2</span>
+<span class="comment">%</span>
+<span class="comment">% if nargin&lt;3</span>
+<span class="comment">%     ratio = .8;</span>
+<span class="comment">% end</span>
+<span class="comment">% D = dist2(desc1, desc2);</span>
+<span class="comment">% ix = [];</span>
+<span class="comment">% iy = [];</span>
+<span class="comment">% d = [];</span>
+<span class="comment">% for i = 1:size(D,1)</span>
+<span class="comment">%    [B,I] = sort(D(i,:));</span>
+<span class="comment">%    if (B(1)/B(2) &gt; ratio), continue, end</span>
+<span class="comment">%    ix(end+1) = i;</span>
+<span class="comment">%    iy(end+1) = I(1);</span>
+<span class="comment">%    d(end+1) = B(1);</span>
+<span class="comment">% end</span>
+<span class="comment">% matches = [ix', iy', d'];</span>
+<span class="comment">% end</span>
+</pre><h2>function h = plotInterestPoints(im, locs, po)<a name="29"></a></h2><pre class="codeinput"><span class="comment">% im = image for interest points</span>
+<span class="comment">% locs = locations of interest points, each row containing [x,y,scale]</span>
+<span class="comment">% po = fraction of interests point to be drawn</span>
+<span class="comment">% h = output handle for the plot</span>
+<span class="comment">% h = imshow(im); hold on</span>
+<span class="comment">% if ~exist('po','var')</span>
+<span class="comment">%     po = 0.1;</span>
+<span class="comment">% end</span>
+<span class="comment">% s = max(size(im,1),size(im,2))/150;</span>
+<span class="comment">% for  i = 1:size(locs,1);</span>
+<span class="comment">%     if rand&gt;po, continue, end</span>
+<span class="comment">%     c = [rand rand rand];</span>
+<span class="comment">%     try</span>
+<span class="comment">%         rectangle('Position',...</span>
+<span class="comment">%             [locs(i,1)-s*locs(i,3), locs(i,2)-s*locs(i,3), 2*s*locs(i,3), 2*s*locs(i,3)],...</span>
+<span class="comment">%             'Curvature', [1 1],...</span>
+<span class="comment">%             'EdgeColor', c);</span>
+<span class="comment">%         scatter(locs(i,1),locs(i,2),[],c,'+')</span>
+<span class="comment">%     catch</span>
+<span class="comment">%         continue</span>
+<span class="comment">%     end</span>
+<span class="comment">%     pause(0.000000001)</span>
+<span class="comment">% end</span>
+<span class="comment">% hold off</span>
+<span class="comment">% end</span>
+</pre><h2>function index = randIndex(maxIndex,len)<a name="30"></a></h2><pre class="codeinput"><span class="comment">% INDEX = RANDINDEX(MAXINDEX,LEN)</span>
+<span class="comment">%   randomly, non-repeatedly select LEN integers from 1:MAXINDEX</span>
+<span class="comment">%</span>
+<span class="comment">% if len &gt; maxIndex</span>
+<span class="comment">% 	index = [];</span>
+<span class="comment">% 	return</span>
+<span class="comment">% end</span>
+<span class="comment">%</span>
+<span class="comment">% index = zeros(1,len);</span>
+<span class="comment">% available = 1:maxIndex;</span>
+<span class="comment">% rs = ceil(rand(1,len).*(maxIndex:-1:maxIndex-len+1));</span>
+<span class="comment">% for p = 1:len</span>
+<span class="comment">% 	while rs(p) == 0</span>
+<span class="comment">% 		rs(p) = ceil(rand(1)*(maxIndex-p+1));</span>
+<span class="comment">% 	end</span>
+<span class="comment">% 	index(p) = available(rs(p));</span>
+<span class="comment">% 	available(rs(p)) = [];</span>
+<span class="comment">% end</span>
+<span class="comment">%</span>
+</pre><h2>function [f] = ransac( x,y,ransacCoef,funcFindF,funcDist )<a name="31"></a></h2><pre class="codeinput"><span class="comment">%</span>
+<span class="comment">% thInlrRatio = ransacCoef.thInlrRatio;</span>
+<span class="comment">% thDist = ransacCoef.thDist;</span>
+<span class="comment">% thInlr = round(thInlrRatio*size(x,2));</span>
+<span class="comment">% inlrNum = zeros(1,ransacCoef.iterNum);</span>
+<span class="comment">% fLib = cell(1,ransacCoef.iterNum);</span>
+<span class="comment">% for p = 1:ransacCoef.iterNum</span>
+<span class="comment">% 	sampleIdx = randIndex(size(x,2),max(thInlr,ransacCoef.minPtNum));</span>
+<span class="comment">% 	f1 = funcFindF(x(:,sampleIdx),y(:,sampleIdx));</span>
+<span class="comment">% 	dist = funcDist(f1,x,y);</span>
+<span class="comment">% 	inlier1 = find(dist &lt; thDist);</span>
+<span class="comment">% 	inlrNum(p) = length(inlier1);</span>
+<span class="comment">% 	if length(inlier1) &lt; thInlr, continue; end</span>
+<span class="comment">% 	fLib{p} = funcFindF(x(:,inlier1),y(:,inlier1));</span>
+<span class="comment">% end</span>
+<span class="comment">% [~,idx] = max(inlrNum);</span>
+<span class="comment">% f = fLib{idx};</span>
+<span class="comment">% end</span>
+</pre><h2>function bestH = ransacH(matches, locs1, locs2, nIter, tol)<a name="32"></a></h2><pre class="codeinput"><span class="comment">% INPUTS</span>
+<span class="comment">% locs1 and locs2 - matrices specifying point locations in each of the images</span>
+<span class="comment">% matches - matrix specifying matches between these two sets of point locations</span>
+<span class="comment">% nIter - number of iterations to run RANSAC</span>
+<span class="comment">% tol - tolerance value for considering a point to be an inlier</span>
+<span class="comment">%</span>
+<span class="comment">% OUTPUTS</span>
+<span class="comment">% bestH - homography model with the most inliers found during RANSAC</span>
+<span class="comment">% if ~exist('nIter','var')</span>
+<span class="comment">%     nIter = 1000;</span>
+<span class="comment">% end</span>
+<span class="comment">% if ~exist('tol','var')</span>
+<span class="comment">%     tol = 2;</span>
+<span class="comment">% end</span>
+<span class="comment">%</span>
+<span class="comment">% p1 = locs1(matches(:,1),1:2);</span>
+<span class="comment">% p2 = locs2(matches(:,2),1:2);</span>
+<span class="comment">%</span>
+<span class="comment">% coef.minPtNum = 16;</span>
+<span class="comment">% coef.iterNum = nIter;</span>
+<span class="comment">% coef.thDist = tol;</span>
+<span class="comment">% coef.thInlrRatio = .1;</span>
+<span class="comment">% bestH = ransac(p1',p2',coef,@computeH,@ptsDist);</span>
+<span class="comment">% end</span>
+<span class="comment">%</span>
+<span class="comment">% function d = ptsDist(H,p1,p2)</span>
+<span class="comment">% n = size(p1,2);</span>
+<span class="comment">% p3 = H*[p1;ones(1,n)];</span>
+<span class="comment">% p3 = p3(1:2,:)./repmat(p3(3,:),2,1);</span>
+<span class="comment">% d = sqrt(sum((p2-p3).^2,1));</span>
+<span class="comment">% end</span>
+</pre><p class="footer"><br><a href="http://www.mathworks.com/products/matlab/">Published with MATLAB&reg; R2015b</a><br></p></div><!--
+##### SOURCE BEGIN #####
+%% Lowe’s scale-invariant interest point detection
+im = imread('building_1.jpg');
+im = im2double((im));
+
+%%
+% Parameters for Difference of Gaussians
+scales = [-1, 0, 1, 2, 3, 4];
+K = sqrt(2);
+sigma0 = 1;
+th_c = 0.03;
+th_r = 12;
+
+%%
+% Get the interest points and the Gaussian Pyramid used to compute it
+[locs,GP] = DoGdetector(rgb2gray(im), sigma0, K, scales, th_c, th_r);
+plotInterestPoints(im,locs)
+drawnow()
+
+%%
+% Please look at the appendix for the code of individual functions
+
+%% Feature extraction
+% Computed SIFT using vlfeat library
+
+% addpath('/path/to/vlfeat')
+im1 = imread('reference.png');
+im2 = imread('test.png');
+[locs1, desc1] = vl_sift(single(rgb2gray(im1)));
+[locs2, desc2] = vl_sift(single(rgb2gray(im2)));
+locs1 = locs1';
+desc1 = desc1';
+locs2 = locs2';
+desc2 = desc2';
+
+%%
+% reference.png computed interest points
+plotInterestPoints(im1, locs1);
+drawnow()
+
+%%
+% test.png computed interest points
+figure
+plotInterestPoints(im2, locs2);
+drawnow()
+
+%%
+% Compute matches. See appendix for function code
+matches = matchInterestPoints(desc1, desc2);
+
+%%
+% reference.png matched interest points
+figure
+plotInterestPoints(im1, locs1(matches(:,1),:), 1);
+drawnow()
+
+%%
+% test.png matched interest points
+figure
+plotInterestPoints(im2, locs2(matches(:,2),:), 1);
+drawnow()
+
+%%
+% note that colors of matched points in both images might be different and
+% they do not indicate any correspondence
+
+%%
+% Get best 3 matches (also included best 8 matches)
+[B,I] = sort(matches(:,3)); %% sort by distances
+top3 = matches(I(1:4),:);
+top8 = matches(I(1:8),:);
+
+%%
+% Compute Affine transformation using top3, top8 matches as well as RANSAC
+H3 = computeH(locs1(top3(:,1),1:2)', locs2(top3(:,2),1:2)');
+H8 = computeH(locs1(top8(:,1),1:2)', locs2(top8(:,2),1:2)');
+H = ransacH(matches, locs1, locs2);
+
+%%
+% See appendix for function codes
+
+%%
+% Compute transformed corners
+corners = [1,1,1;...
+           1,size(im1,1),1;...
+           size(im1,2),size(im1,1),1;...1
+           size(im1,2),1,1;];
+corners3 = (H3*corners')';
+corners8 = (H8*corners')';
+cornersR = (H*corners')';
+
+
+%%
+% Visualize transormation using top3 matches
+figure
+x = corners3(:,1);
+y = corners3(:,2);
+imshow(im2), hold on, fill(x,y,'r','FaceAlpha',0.3), hold off
+drawnow()
+
+%%
+% Visualize transormation using top8 matches
+figure
+x = corners8(:,1);
+y = corners8(:,2);
+imshow(im2), hold on, fill(x,y,'r','FaceAlpha',0.3), hold off
+drawnow()
+
+%%
+% Visualize transormation using RANSAC
+figure
+x = cornersR(:,1);
+y = cornersR(:,2);
+imshow(im2), hold on, fill(x,y,'r','FaceAlpha',0.3), hold off
+drawnow()
+
+%% Appendix
+% All function definitions are here
+
+%% function H2to1 = computeH(p1,p2)
+
+% function H2to1 = computeH(p1,p2)
+% INPUTS:
+% p1 and p2 - Each are size (2 x N) matrices of corresponding (x, y)'
+%             coordinates between two images
+%
+% OUTPUTS:
+% H2to1 - a 3 x 3 matrix encoding the homography that best matches the linear
+%         equation
+% p1 = p1';
+% p2 = p2';
+% A = [];
+% for i = 1:size(p1,1)
+%     x1 = p1(i,1);
+%     x2 = p2(i,1);
+%     y1 = p1(i,2);
+%     y2 = p2(i,2);
+%     
+%     A = vertcat(A,[-x1, -y1, -1, 0, 0, 0, x2*x1, x2*y1, x2]);
+%     A = vertcat(A,[0, 0, 0, -x1, -y1, -1, y2*x1, y2*y1, y2]);    
+% end
+% [V,~] = eig(A'*A);
+% h = V(:,1);
+% h = h/(h(end));
+% H2to1 = reshape(h,[3,3])';
+
+%% function H = computeHessian(I)
+
+% function H = computeHessian(I)
+% [ix,iy] = gradient(I);
+% [H.ixx, H.ixy] = gradient(ix);
+% [H.iyx, H.iyy] = gradient(iy);
+% end
+
+%% function PrincipalCurvature = computePrincipalCurvature(DoGPyramid)
+
+% function PrincipalCurvature = computePrincipalCurvature(DoGPyramid)
+%%Edge Suppression
+% Takes in DoGPyramid generated in createDoGPyramid and returns
+% PrincipalCurvature,a matrix of the same size where each point contains the
+% curvature ratio R for the corre-sponding point in the DoG pyramid
+%
+% INPUTS
+% DoG Pyramid - size (size(im), numel(levels) - 1) matrix of the DoG pyramid
+%
+% OUTPUTS
+% PrincipalCurvature - size (size(im), numel(levels) - 1) matrix where each 
+%                      point contains the curvature ratio R for the 
+%                      corresponding point in the DoG pyramid
+% PrincipalCurvature = zeros(size(DoGPyramid));
+% for i = 1:size(DoGPyramid,3)
+%     I = DoGPyramid(:,:,i);
+%     H = computeHessian(I);
+%     R = (tracefun(H).^2) ./ (detfun(H));
+%     PrincipalCurvature(:,:,i) = R;
+% end
+% end
+% 
+% function T = tracefun(H)
+% T = H.ixx + H.iyy;
+% end
+% 
+% function D = detfun(H)
+% D = ((H.ixx) .* (H.iyy)) - ((H.ixy) .* (H.iyx));
+% end
+
+%% function [DoGPyramid, DoGLevels] = createDoGPyramid(GaussianPyramid, levels)
+
+% function [DoGPyramid, DoGLevels] = createDoGPyramid(GaussianPyramid, levels)
+% Produces DoG Pyramid
+% inputs
+% Gaussian Pyramid - A matrix of grayscale images of size
+%                    (size(im), numel(levels))
+% levels      - the levels of the pyramid where the blur at each level is
+%               outputs
+% DoG Pyramid - size (size(im), numel(levels) - 1) matrix of the DoG pyramid
+%               created by differencing the Gaussian Pyramid input
+% L = numel(levels)-1;
+% DoGPyramid = GaussianPyramid(:,:,1:end-1);
+% for i = 1:L
+%    DoGPyramid(:,:,i) = GaussianPyramid(:,:,i+1)-GaussianPyramid(:,:,i);
+% end
+% DoGLevels = levels(2:end);
+% 
+% end
+
+%% function [GaussianPyramid] = createGaussianPyramid(im, sigma0, k, levels)
+
+% function [GaussianPyramid] = createGaussianPyramid(im, sigma0, k, levels)
+% Produces Gaussian Pyramid
+% inputs
+% im - a grayscale image with range 0 to 1
+% sigma0 - the standard deviation of the blur at level 0
+% k - the multiplicative factor of sigma at each level, where sigma=sigma_0 k^l
+% levels - the levels of the pyramid where the blur at each level is
+% sigma=sigma0 k^l
+% outputs
+% A matrix of grayscale images of size (size(im),numel(levels))
+
+% im = im2double(im);
+% if size(im,3)==3
+%     im= rgb2gray(im);
+% end
+% 
+% GaussianPyramid = zeros([size(im),length(levels)]);
+% for i = 1:length(levels)
+%     sigma_ = sigma0*k^levels(i);
+%     h = fspecial('gaussian',floor(3*sigma_*2)+1,sigma_);
+%     GaussianPyramid(:,:,i) = imfilter(im,h);
+% end
+
+%% function displayPyramid(pyrmid)
+
+% function displayPyramid(pyrmid)
+% inputs: pyrmid - R x C x L; R x C is the size of the input image; L is the number of levels in the pyramid.
+
+% [nr, nc, nl]= size(pyrmid);
+% im2show= zeros(nr, nc*nl);
+% 
+% for il=1:nl
+%     im2show(1:end,1+(il-1)*nc  :  il*nc) = pyrmid(:,:,il);
+% end
+% 
+% imshow(im2show,[]);
+% title('Pyramid of image')
+% end
+
+%% function [locsDoG, GaussianPyramid] = DoGdetector(im, sigma0, k, levels, th_contrast, th_r)
+
+% function [locsDoG, GaussianPyramid] = DoGdetector(im, sigma0, k, ...
+%                                                 levels, th_contrast, th_r)
+% DoGdetector
+%  Putting it all together
+%
+%   Inputs          Description
+% REPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASH
+%   im              Grayscale image with range [0,1].
+%
+%   sigma0          Scale of the 0th image pyramid.
+%
+%   k               Pyramid Factor.  Suggest sqrt(2).
+%
+%   levels          Levels of pyramid to construct. Suggest -1:4.
+%
+%   th_contrast     DoG contrast threshold.  Suggest 0.03.
+%
+%   th_r            Principal Ratio threshold.  Suggest 12.
+%
+%   Outputs         Description
+% REPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASH
+%
+%   locsDoG         N x 3 matrix where the DoG pyramid achieves a local extrema
+%                   in both scale and space, and satisfies the two thresholds.
+%
+%   GaussianPyramid A matrix of grayscale images of size (size(im),numel(levels))
+% GaussianPyramid = (createGaussianPyramid(im,...
+%     sigma0,k, levels));
+% 
+% [mypyrdog,L] = createDoGPyramid(GaussianPyramid, levels);
+% 
+% pc = computePrincipalCurvature(mypyrdog);
+% 
+% locsDoG = getLocalExtrema(mypyrdog, L, pc, th_contrast, th_r);
+% 
+% end
+
+%% function locsDoG = getLocalExtrema(DoGPyramid, DoGLevels, PrincipalCurvature, th_contrast, th_r)
+
+% Detecting Extrema
+% INPUTS
+% DoG Pyramid - size (size(im), numel(levels) - 1) matrix of the DoG pyramid
+% DoG Levels  - The levels of the pyramid where the blur at each level is
+%               outputs
+% PrincipalCurvature - size (size(im), numel(levels) - 1) matrix contains the
+%                      curvature ratio R
+% th_contrast - remove any point that is a local extremum but does not have a
+%               DoG response magnitude above this threshold
+% th_r        - remove any edge-like points that have too large a principal
+%               curvature ratio
+%
+% OUTPUTS
+% locsDoG - N x 3 matrix where the DoG pyramid achieves a local extrema in both
+%           scale and space, and also satisfies the two thresholds.
+% N = circshift(DoGPyramid,[-1, 0, 0]);
+% NE = circshift(DoGPyramid,[-1, 1, 0]);
+% E = circshift(DoGPyramid,[0, 1, 0]);
+% SE = circshift(DoGPyramid,[1, 1, 0]);
+% S = circshift(DoGPyramid,[1, 0, 0]);
+% SW = circshift(DoGPyramid,[1, -1, 0]);
+% W = circshift(DoGPyramid,[0, -1, 0]);
+% NW = circshift(DoGPyramid,[-1, -1, 0]);
+% Coarse = circshift(DoGPyramid,[0,0,1]);
+% Fine = circshift(DoGPyramid,[0,0,-1]);
+% 
+% locs = (DoGPyramid>=N)&(DoGPyramid>=NE)&(DoGPyramid>=E)&...
+%     (DoGPyramid>=SE)&(DoGPyramid>=S)&(DoGPyramid>=SW)&...
+%     (DoGPyramid>=W)&(DoGPyramid>=NW)&...
+%     (DoGPyramid>=Coarse)&(DoGPyramid>=Fine);
+% locs(:,:,1) = 0;
+% locs(:,:,end) = 0;
+% Xl = [];
+% Yl = [];
+% Dl = [];
+% for i = 1:size(DoGPyramid,3)-2
+%     iloc = locs(:,:,i+1);
+%     D = DoGPyramid(:,:,i+1);
+%     R = PrincipalCurvature(:,:,i+1);
+%     iloc = iloc & (D>th_contrast);
+%     iloc = iloc & (R<th_r);
+%     [Yt,Xt] = find(iloc);
+%     Xl = vertcat(Xl,Xt);
+%     Yl = vertcat(Yl,Yt);
+%     Dl = vertcat(Dl,DoGLevels(i+1)*ones(size(Xt)));
+% end
+% locsDoG = horzcat(Xl,Yl,Dl);
+
+%% function [matches] = matchInterestPoints(desc1, desc2, ratio)
+
+% function [matches] = briefMatch(desc1, desc2, ratio)
+% Performs the descriptor matching
+% inputs  : desc1 , desc2 - m1 x n and m2 x n matrix. m1 and m2 are the number of keypoints in image 1 and 2.
+%						    n is the number of bits in the brief
+% outputs : matches - p x 2 matrix. where the first column are indices
+%									into desc1 and the second column are indices into desc2
+% 
+% if nargin<3
+%     ratio = .8;
+% end
+% D = dist2(desc1, desc2);
+% ix = [];
+% iy = [];
+% d = [];
+% for i = 1:size(D,1)
+%    [B,I] = sort(D(i,:));
+%    if (B(1)/B(2) > ratio), continue, end
+%    ix(end+1) = i;
+%    iy(end+1) = I(1);
+%    d(end+1) = B(1);
+% end
+% matches = [ix', iy', d'];
+% end
+
+%% function h = plotInterestPoints(im, locs, po)
+
+% im = image for interest points
+% locs = locations of interest points, each row containing [x,y,scale]
+% po = fraction of interests point to be drawn
+% h = output handle for the plot
+% h = imshow(im); hold on
+% if ~exist('po','var')
+%     po = 0.1;
+% end
+% s = max(size(im,1),size(im,2))/150;
+% for  i = 1:size(locs,1);
+%     if rand>po, continue, end
+%     c = [rand rand rand];
+%     try
+%         rectangle('Position',...
+%             [locs(i,1)-s*locs(i,3), locs(i,2)-s*locs(i,3), 2*s*locs(i,3), 2*s*locs(i,3)],...
+%             'Curvature', [1 1],...
+%             'EdgeColor', c);
+%         scatter(locs(i,1),locs(i,2),[],c,'+')
+%     catch
+%         continue
+%     end
+%     pause(0.000000001)
+% end
+% hold off
+% end
+
+%% function index = randIndex(maxIndex,len)
+
+% INDEX = RANDINDEX(MAXINDEX,LEN)
+%   randomly, non-repeatedly select LEN integers from 1:MAXINDEX
+% 
+% if len > maxIndex
+% 	index = [];
+% 	return
+% end
+% 
+% index = zeros(1,len);
+% available = 1:maxIndex;
+% rs = ceil(rand(1,len).*(maxIndex:-1:maxIndex-len+1));
+% for p = 1:len
+% 	while rs(p) == 0
+% 		rs(p) = ceil(rand(1)*(maxIndex-p+1));
+% 	end
+% 	index(p) = available(rs(p));
+% 	available(rs(p)) = [];
+% end
+% 
+
+%% function [f] = ransac( x,y,ransacCoef,funcFindF,funcDist )
+
+% 
+% thInlrRatio = ransacCoef.thInlrRatio;
+% thDist = ransacCoef.thDist;
+% thInlr = round(thInlrRatio*size(x,2));
+% inlrNum = zeros(1,ransacCoef.iterNum);
+% fLib = cell(1,ransacCoef.iterNum);
+% for p = 1:ransacCoef.iterNum
+% 	sampleIdx = randIndex(size(x,2),max(thInlr,ransacCoef.minPtNum));
+% 	f1 = funcFindF(x(:,sampleIdx),y(:,sampleIdx));
+% 	dist = funcDist(f1,x,y);
+% 	inlier1 = find(dist < thDist);
+% 	inlrNum(p) = length(inlier1);
+% 	if length(inlier1) < thInlr, continue; end
+% 	fLib{p} = funcFindF(x(:,inlier1),y(:,inlier1));
+% end
+% [~,idx] = max(inlrNum);
+% f = fLib{idx};	
+% end
+
+%% function bestH = ransacH(matches, locs1, locs2, nIter, tol)
+
+% INPUTS
+% locs1 and locs2 - matrices specifying point locations in each of the images
+% matches - matrix specifying matches between these two sets of point locations
+% nIter - number of iterations to run RANSAC
+% tol - tolerance value for considering a point to be an inlier
+%
+% OUTPUTS
+% bestH - homography model with the most inliers found during RANSAC
+% if ~exist('nIter','var')
+%     nIter = 1000;
+% end
+% if ~exist('tol','var')
+%     tol = 2;
+% end
+% 
+% p1 = locs1(matches(:,1),1:2);
+% p2 = locs2(matches(:,2),1:2);
+% 
+% coef.minPtNum = 16;
+% coef.iterNum = nIter;
+% coef.thDist = tol;
+% coef.thInlrRatio = .1;
+% bestH = ransac(p1',p2',coef,@computeH,@ptsDist);
+% end
+% 
+% function d = ptsDist(H,p1,p2)
+% n = size(p1,2);
+% p3 = H*[p1;ones(1,n)];
+% p3 = p3(1:2,:)./repmat(p3(3,:),2,1);
+% d = sqrt(sum((p2-p3).^2,1));
+% end
+##### SOURCE END #####
+--></body></html>
